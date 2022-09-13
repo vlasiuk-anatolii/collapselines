@@ -118,42 +118,57 @@ const findAllCroosPoints = () => {
       }
     }
   }
+};
 
-  const button = document.getElementById('btn');
+const button = document.getElementById('btn');
 
-  button.onclick = () => {
-    const middlePoints = [];
+const animation = () => {
+  const quantity = 300;
+  const cw = canvas.width;
+  const ch = canvas.height;
 
-    function collaps() {
-      ctx.strokeStyle = 'white';
-      ctx.lineWidth = 5;
-      ctx.beginPath();
+  let pct = 0;
 
-      coordsAllLines.map(line => {
-        const xMiddle = (line[1].x + line[0].x) / 2;
-        const yMiddle = (line[1].y + line[0].y) / 2;
+  window.requestAnimationFrame(animate);
 
-        ctx.moveTo(line[0].x, line[0].y);
-        ctx.lineTo(xMiddle, yMiddle);
-
-        ctx.moveTo(line[1].x, line[1].y);
-        ctx.lineTo(xMiddle, yMiddle);
-        ctx.stroke();
-        middlePoints.push([xMiddle, yMiddle]);
-      });
-
-      ctx.beginPath();
-      ctx.strokeStyle = 'blue';
-
-      middlePoints.map(point => {
-        ctx.moveTo(point[0], point[1]);
-        ctx.arc(point[0], point[1], 1, 0, 360, false);
-        ctx.stroke();
-      });
-
-      window.requestAnimationFrame(collaps);
+  function animate() {
+    if (++pct > quantity) {
+      return;
     }
+    ctx.clearRect(0, 0, cw, ch);
 
-    window.requestAnimationFrame(collaps);
+    coordsAllLines.map(line => {
+      const startX = line[0].x;
+      const startY = line[0].y;
+      const endX = line[1].x;
+      const endY = line[1].y;
+      const xMiddle = (startX + endX) / 2;
+      const yMiddle = (startY + endY) / 2;
+      const dx = endX - startX;
+      const dy = endY - startY;
+      const x = startX + dx * pct / (2 * quantity);
+      const y = startY + dy * pct / (2 * quantity);
+
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(xMiddle, yMiddle);
+
+      ctx.moveTo(
+        endX - dx * pct / (2 * quantity),
+        endY - dy * pct / (2 * quantity)
+      );
+      ctx.lineTo(xMiddle, yMiddle);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.fillStyle = 'blue';
+      ctx.arc(xMiddle, yMiddle, 5, 0, 360, false);
+      ctx.fill();
+    });
+
+    window.requestAnimationFrame(animate);
   };
+};
+
+button.onclick = () => {
+  animation();
 };
