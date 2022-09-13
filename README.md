@@ -1,2 +1,2 @@
 # Collapse lines
-[Demo]()
+[Demo](https://vlasiuk-anatolii.github.io/collapselines/)
