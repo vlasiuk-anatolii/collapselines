@@ -1,33 +1,38 @@
+'use strict';
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-let startXY = new Object();
+let startXY = {};
 let isStart = true;
-let coordsAllLines = [];
-let allPointsCross = [];
+const coordsAllLines = [];
+const allPointsCross = [];
 
 canvas.onclick = (event) => {
   if (isStart) {
     ctx.moveTo(event.offsetX, event.offsetY);
+
     startXY = {
-      x:event.offsetX,
-      y:event.offsetY,
-    }
+      x: event.offsetX,
+      y: event.offsetY,
+    };
+
     isStart = false;
   } else {
     const endXY = {
-      x:event.offsetX,
-      y:event.offsetY
+      x: event.offsetX,
+      y: event.offsetY,
     };
-    coordsAllLines.push([startXY, endXY])
+
+    coordsAllLines.push([startXY, endXY]);
     isStart = true;
     findAllCroosPoints();
     drawPoint();
   }
-}
+};
 
 canvas.onmousemove = (event) => {
   if (!isStart) {
-    ctx.clearRect(0,0,750,450);
+    ctx.clearRect(0, 0, 750, 450);
     ctx.moveTo(startXY.x, startXY.y);
     ctx.lineTo(event.offsetX, event.offsetY);
     ctx.stroke();
@@ -35,26 +40,26 @@ canvas.onmousemove = (event) => {
     drawLine();
     drawPoint();
   }
-}
+};
 
 const drawLine = () => {
   coordsAllLines.map(line => {
-    ctx.moveTo(line[0].x, line[0].y)
-    ctx.lineTo(line[1].x, line[1].y)
-  })
+    ctx.moveTo(line[0].x, line[0].y);
+    ctx.lineTo(line[1].x, line[1].y);
+  });
 
   ctx.stroke();
-}
+};
 
 const drawPoint = () => {
-    allPointsCross.map(point => {
+  allPointsCross.map(point => {
     ctx.beginPath();
     ctx.fillStyle = 'red';
     ctx.arc(point.x, point.y, 3, 0, 360, false);
     ctx.stroke();
     ctx.fill();
-  })
-}
+  });
+};
 
 const getA = (x1, y1, x2, y2) => {
   if (x2 - x1) {
@@ -62,7 +67,7 @@ const getA = (x1, y1, x2, y2) => {
   }
 
   return false;
-}
+};
 
 const getC = (x1, y1, x2, y2) => {
   if (x2 - x1) {
@@ -70,7 +75,7 @@ const getC = (x1, y1, x2, y2) => {
   }
 
   return false;
-}
+};
 
 const coordsCrossCramer = (x1, y1, x2, y2, x3, y3, x4, y4) => {
   const A1 = getA(x1, y1, x2, y2);
@@ -84,18 +89,14 @@ const coordsCrossCramer = (x1, y1, x2, y2, x3, y3, x4, y4) => {
   const delta = A1 * B2 - A2 * B1;
 
   if (delta) {
-    console.log({
-      x: delta1 / delta,
-      y: delta2 / delta,
-    });
     return {
       x: (delta1 / delta) * -1,
       y: (delta2 / delta) * -1,
-    }
+    };
   }
 
   return false;
-}
+};
 
 const findAllCroosPoints = () => {
   if (coordsAllLines.length > 1) {
@@ -112,10 +113,47 @@ const findAllCroosPoints = () => {
           coordsAllLines[j][1].y);
 
         if (resolve) {
-          console.log(resolve)
           allPointsCross.push(resolve);
         }
       }
     }
   }
-}
+
+  const button = document.getElementById('btn');
+
+  button.onclick = () => {
+    const middlePoints = [];
+
+    function collaps() {
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+
+      coordsAllLines.map(line => {
+        const xMiddle = (line[1].x + line[0].x) / 2;
+        const yMiddle = (line[1].y + line[0].y) / 2;
+
+        ctx.moveTo(line[0].x, line[0].y);
+        ctx.lineTo(xMiddle, yMiddle);
+
+        ctx.moveTo(line[1].x, line[1].y);
+        ctx.lineTo(xMiddle, yMiddle);
+        ctx.stroke();
+        middlePoints.push([xMiddle, yMiddle]);
+      });
+
+      ctx.beginPath();
+      ctx.strokeStyle = 'blue';
+
+      middlePoints.map(point => {
+        ctx.moveTo(point[0], point[1]);
+        ctx.arc(point[0], point[1], 1, 0, 360, false);
+        ctx.stroke();
+      });
+
+      window.requestAnimationFrame(collaps);
+    }
+
+    window.requestAnimationFrame(collaps);
+  };
+};
