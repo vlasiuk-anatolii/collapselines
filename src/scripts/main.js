@@ -6,6 +6,8 @@ let startXY = {};
 let isStart = true;
 const coordsAllLines = [];
 const allPointsCross = [];
+const canvasWidth = 750;
+const canvasHeight = 450;
 
 canvas.onclick = (event) => {
   if (isStart) {
@@ -30,9 +32,16 @@ canvas.onclick = (event) => {
   }
 };
 
+canvas.oncontextmenu = (event) => {
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  drawLine();
+  drawPoint();
+  isStart = true;
+};
+
 canvas.onmousemove = (event) => {
   if (!isStart) {
-    ctx.clearRect(0, 0, 750, 450);
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     ctx.moveTo(startXY.x, startXY.y);
     ctx.lineTo(event.offsetX, event.offsetY);
     ctx.stroke();
@@ -113,7 +122,17 @@ const findAllCroosPoints = () => {
           coordsAllLines[j][1].y);
 
         if (resolve) {
-          allPointsCross.push(resolve);
+          if (((resolve.x >= coordsAllLines[i][0].x
+            && resolve.x <= coordsAllLines[i][1].x)
+          || (resolve.x <= coordsAllLines[i][0].x
+            && resolve.x >= coordsAllLines[i][1].x))
+
+            && ((resolve.x >= coordsAllLines[j][0].x
+              && resolve.x <= coordsAllLines[j][1].x)
+            || (resolve.x <= coordsAllLines[j][0].x
+              && resolve.x >= coordsAllLines[j][1].x))) {
+            allPointsCross.push(resolve);
+          }
         }
       }
     }
@@ -123,10 +142,7 @@ const findAllCroosPoints = () => {
 const button = document.getElementById('btn');
 
 const animation = () => {
-  const quantity = 300;
-  const cw = canvas.width;
-  const ch = canvas.height;
-
+  const quantity = 200;
   let pct = 0;
 
   window.requestAnimationFrame(animate);
@@ -135,7 +151,7 @@ const animation = () => {
     if (++pct > quantity) {
       return;
     }
-    ctx.clearRect(0, 0, cw, ch);
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     coordsAllLines.map(line => {
       const startX = line[0].x;
