@@ -40,6 +40,8 @@ canvas.oncontextmenu = (event) => {
 };
 
 canvas.onmousemove = (event) => {
+  const dynamicPoints = [];
+
   if (!isStart) {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     ctx.moveTo(startXY.x, startXY.y);
@@ -48,6 +50,29 @@ canvas.onmousemove = (event) => {
     ctx.beginPath();
     drawLine();
     drawPoint();
+
+    for (let i = 0; i < coordsAllLines.length; i++) {
+      const temp = coordsCrossCramer(
+        startXY.x,
+        startXY.y,
+        event.offsetX,
+        event.offsetY,
+        coordsAllLines[i][0].x,
+        coordsAllLines[i][0].y,
+        coordsAllLines[i][1].x,
+        coordsAllLines[i][1].y,
+      );
+
+      dynamicPoints.push(temp);
+    }
+
+    dynamicPoints.map(point => {
+      ctx.beginPath();
+      ctx.fillStyle = 'red';
+      ctx.arc(point.x, point.y, 3, 0, 360, false);
+      ctx.stroke();
+      ctx.fill();
+    });
   }
 };
 
