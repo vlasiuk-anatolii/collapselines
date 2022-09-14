@@ -63,7 +63,17 @@ canvas.onmousemove = (event) => {
         coordsAllLines[i][1].y,
       );
 
-      dynamicPoints.push(temp);
+      if (((temp.x >= coordsAllLines[i][0].x
+        && temp.x <= coordsAllLines[i][1].x)
+      || (temp.x <= coordsAllLines[i][0].x
+        && temp.x >= coordsAllLines[i][1].x))
+
+        && ((temp.x >= startXY.x
+          && temp.x <= event.offsetX)
+        || (temp.x <= startXY.x
+          && temp.x >= event.offsetX))) {
+        dynamicPoints.push(temp);
+      }
     }
 
     dynamicPoints.map(point => {
