@@ -1,5 +1,62 @@
 'use strict';
 
+class Cramer {
+  constructor(x1, y1, x2, y2, x3, y3, x4, y4) {
+    this.x1 = x1;
+    this.y1 = y1;
+    this.x2 = x2;
+    this.y2 = y2;
+    this.x3 = x3;
+    this.y3 = y3;
+    this.x4 = x4;
+    this.y4 = y4;
+  }
+
+  getA(x1, y1, x2, y2) {
+    if (x2 - x1) {
+      return (y1 - y2) / (x2 - x1);
+    }
+
+    return false;
+  };
+
+  getC(x1, y1, x2, y2) {
+    if (x2 - x1) {
+      return ((y2 - y1) / (x2 - x1)) * x1 - y1;
+    }
+
+    return false;
+  };
+
+  getDelta() {
+    return this.getA(this.x1, this.y1, this.x2, this.y2)
+    - this.getA(this.x3, this.y3, this.x4, this.y4);
+  }
+
+  getDelta1() {
+    return this.getC(this.x1, this.y1, this.x2, this.y2)
+    - this.getC(this.x3, this.y3, this.x4, this.y4);
+  }
+
+  getDelta2() {
+    return this.getA(this.x1, this.y1, this.x2, this.y2)
+    * this.getC(this.x3, this.y3, this.x4, this.y4)
+    - this.getA(this.x3, this.y3, this.x4, this.y4)
+    * this.getC(this.x1, this.y1, this.x2, this.y2);
+  }
+
+  getResolve() {
+    if (this.getDelta()) {
+      return {
+        x: (this.getDelta1() / this.getDelta()) * -1,
+        y: (this.getDelta2() / this.getDelta()) * -1,
+      };
+    }
+
+    return false;
+  }
+}
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 let startXY = {};
@@ -52,7 +109,7 @@ canvas.onmousemove = (event) => {
     drawPoint();
 
     for (let i = 0; i < coordsAllLines.length; i++) {
-      const temp = coordsCrossCramer(
+      const cramer = new Cramer(
         startXY.x,
         startXY.y,
         event.offsetX,
@@ -63,6 +120,8 @@ canvas.onmousemove = (event) => {
         coordsAllLines[i][1].y,
       );
 
+      const temp = cramer.getResolve();
+     
       if (((temp.x >= coordsAllLines[i][0].x
         && temp.x <= coordsAllLines[i][1].x)
       || (temp.x <= coordsAllLines[i][0].x
@@ -105,48 +164,11 @@ const drawPoint = () => {
   });
 };
 
-const getA = (x1, y1, x2, y2) => {
-  if (x2 - x1) {
-    return (y1 - y2) / (x2 - x1);
-  }
-
-  return false;
-};
-
-const getC = (x1, y1, x2, y2) => {
-  if (x2 - x1) {
-    return ((y2 - y1) / (x2 - x1)) * x1 - y1;
-  }
-
-  return false;
-};
-
-const coordsCrossCramer = (x1, y1, x2, y2, x3, y3, x4, y4) => {
-  const A1 = getA(x1, y1, x2, y2);
-  const B1 = 1;
-  const C1 = getC(x1, y1, x2, y2);
-  const A2 = getA(x3, y3, x4, y4);
-  const B2 = 1;
-  const C2 = getC(x3, y3, x4, y4);
-  const delta1 = C1 * B2 - C2 * B1;
-  const delta2 = A1 * C2 - A2 * C1;
-  const delta = A1 * B2 - A2 * B1;
-
-  if (delta) {
-    return {
-      x: (delta1 / delta) * -1,
-      y: (delta2 / delta) * -1,
-    };
-  }
-
-  return false;
-};
-
 const findAllCroosPoints = () => {
   if (coordsAllLines.length > 1) {
     for (let i = 0; i < coordsAllLines.length; i++) {
       for (let j = 0; j < coordsAllLines.length; j++) {
-        const resolve = coordsCrossCramer(
+        const cramer = new Cramer(
           coordsAllLines[i][0].x,
           coordsAllLines[i][0].y,
           coordsAllLines[i][1].x,
@@ -155,6 +177,8 @@ const findAllCroosPoints = () => {
           coordsAllLines[j][0].y,
           coordsAllLines[j][1].x,
           coordsAllLines[j][1].y);
+
+        const resolve = cramer.getResolve();
 
         if (resolve) {
           if (((resolve.x >= coordsAllLines[i][0].x
